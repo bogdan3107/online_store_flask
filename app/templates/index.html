@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <div class="container text-center">
     <h1>Our products</h1>
-    {% if products %}
-        <div class="container text-center">
+        {% if products %}
             <div class="row">
                 {% for product in products %}
                     <div class="col">
@@ -13,8 +13,8 @@
                     </div>
                 {% endfor %}
             </div>
-        </div>
     {% else %}
         <p> No products available.</p>
     {% endif %}
+    </div>
 {% endblock %}

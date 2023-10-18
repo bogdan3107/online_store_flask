@@ -29,6 +29,9 @@ def create_app(config_class=Config):
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
+    #admin panel is not in use now
+
+    """
     from app.admin_panel import bp as admin_panel_bp
     admin_panel_bp.name = 'my_admin_panel_bp'
     app.register_blueprint(admin_panel_bp)
@@ -36,8 +39,8 @@ def create_app(config_class=Config):
     from app import models
 
     from app.admin_panel.routes import ProductsAdminView
-    admin.add_view(ProductsAdminView(models.Products, db.session))
-
+    admin.add_view(ProductsAdminView(models.Product, db.session))
+    """
     return app
 
 from app import models
