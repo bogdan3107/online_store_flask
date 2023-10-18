@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Our products</h1>
+    {% if products %}
+        {% for product in products %}
+            <div><p>
+                <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
+                <b>{{ product.name }}</b>
+                {{ product.description }}
+                </p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p> No products available.</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block admin %}
+    <h1>Create a Product</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.name.label }}
+            {{ form.name(class="form-control", placeholder="Enter the product name") }}
+        </div>
+        <div class="mb-3">
+            {{ form.description.label }}
+            {{ form.description(class="form-control", placeholder="Enter the product description") }}
+        </div>
+        <div class="mb-3">
+            {{ form.image.label }}
+            {{ form.image(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+{% endblock %}
