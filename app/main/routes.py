@@ -9,19 +9,19 @@ def index():
     products = [
             {   'name': 'Product1',
                 'description': 'Here is decription of the first product',
-                'image': 'dump/img1.jpg'
+                'image_path': 'dump/img1.jpg'
             },
             {   'name': 'Product2',
                 'description': 'Here is decription of the second product',
-                'image': 'dump/img2.jpg'
+                'image_path': 'dump/img2.jpg'
             },
             {   'name': 'Product2',
                 'description': 'Here is decription of the second product',
-                'image': 'dump/img2.jpg'
+                'image_path': 'dump/img2.jpg'
             },
             {   'name': 'Product2',
                 'description': 'Here is decription of the second product',
-                'image': 'dump/img2.jpg'
+                'image_path': 'dump/img2.jpg'
             }
     ]
     return render_template('index.html', title=('Home'), products=products)
