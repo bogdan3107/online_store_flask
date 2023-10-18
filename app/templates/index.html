@@ -3,14 +3,17 @@
 {% block content %}
     <h1>Our products</h1>
     {% if products %}
-        {% for product in products %}
-            <div><p>
-                <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
-                <b>{{ product.name }}</b>
-                {{ product.description }}
-                </p>
+        <div class="container text-center">
+            <div class="row">
+                {% for product in products %}
+                    <div class="col">
+                        <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" width="100" height="100"><br>
+                        <b>{{ product.name }}</b><br>
+                        {{ product.description }}               
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
     {% else %}
         <p> No products available.</p>
     {% endif %}
