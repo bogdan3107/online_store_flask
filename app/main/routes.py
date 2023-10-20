@@ -1,35 +1,20 @@
 from flask import render_template
 from app.main import bp
+from app.models import Product
 
 
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    return render_template('products.html')
 
 
 @bp.route('/products', methods=['GET', 'POST'])
 def products():
-    products = [
-            {   'name': 'Product1',
-                'description': 'Here is decription of the first product',
-                'image_path': 'dump/img1.jpg'
-            },
-            {   'name': 'Product2',
-                'description': 'Here is decription of the second product',
-                'image_path': 'dump/img2.jpg'
-            },
-            {   'name': 'Product2',
-                'description': 'Here is decription of the second product',
-                'image_path': 'dump/img2.jpg'
-            },
-            {   'name': 'Product2',
-                'description': 'Here is decription of the second product',
-                'image_path': 'dump/img2.jpg'
-            }
-    ]
-    return render_template('index.html', title=('Products'), products=products)
+    products = Product.query.all()
+
+    return render_template('products.html', title=('Products'), products=products)
 
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
