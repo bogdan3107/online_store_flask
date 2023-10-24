@@ -10,6 +10,18 @@ product_category_association = db.Table(
     db.Column('category_id', db.Integer, db.ForeignKey('category.id'))
 )
 
+
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product = db.relationship('Product', back_populates='order', lazy=True)
+    quantity = db.Column(db.Integer)
+    customer = db.relationship('User', back_populates='orders')
+    created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    status = db.Column(db.String(16), default='cart', server_default='cart')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, nullable=False)
@@ -19,6 +31,7 @@ class Product(db.Model):
     stock = db.Column(db.Integer)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category', secondary=product_category_association, back_populates='products')
+    order = db.relationship('Order', back_populates='product', lazy=True)
 
     def __repr__(self) -> str:
         return f"<Product(id={self.id}, name='{self.name}', price={self.price}, stock={self.stock}, orders={getattr(self, 'orders', None)})>"
@@ -36,6 +49,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    orders = db.relationship('Order', back_populates='customer')
     
 
     def __repr__(self) -> str:
