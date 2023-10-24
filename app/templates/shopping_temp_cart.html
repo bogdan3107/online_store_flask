@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container text-center">
+        <h1>Your Cart</h1>
+        <div class="row row-cols-auto">
+            {% for productId, quantity in temp_cart %}
+                <div class="col">
+                    <div class="card">
+                        <p>ProductId: {{ productId }}, Quantity: {{ quantity }}</p>
+                        {% set product = product_by_id.get(productId) %}
+                        <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name }}" width="144" height="144">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">Quantity: {{ quantity }}</p>
+                        </div>
+                    </div>            
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+

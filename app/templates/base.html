@@ -22,12 +22,21 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.products') }}">Products</a>
               </li>
+              {% if current_user.is_anonymous %}
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('main.contact_us') }}">Contact Us</a>
+                <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+              </li>
+              {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.user', username=current_user.username) }}">Profile</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.shopping_cart') }}">Shopping Cart</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+              </li>
+              {% endif %}
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -36,8 +45,34 @@
           </div>
         </div>
       </nav>
-      {% block content %}
+    {% block content %}
         
-      {% endblock %}
+    {% endblock %}
+    {% block scripts %}
+    <script>
+      function addToCart(productId, quantity) {
+        productId = parseInt(productId);
+        quantity = parseInt(quantity);
+
+      fetch('/add_to_cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId: productId, quantity: quantity }),
+      })
+      .then(response => response.json())
+      .then(data => {
+          console.log('Success:', data);
+      })
+      .catch((error) => {
+          console.log('Error:', error);
+      });
+
+      alert("Product added to cart successfully");
+      }
+
+    </script>
+    {% endblock %}
 </body>
 </html>

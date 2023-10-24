@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="container text-center">
-    <h1>Our products</h1>
+        <h1>Our products</h1>
         {% if products %}
             <div class="row row-cols-auto">
                 {% for product in products %}
@@ -15,7 +15,7 @@
                             {% endif %}
                             <div class="card-body">
                                 <h5 class="card-title">{{ product.name }}</h5>
-                                <p class="card-text">{{ product.decription }}</p>
+                                <p class="card-text">{{ product.description }}</p>  <!-- Исправлено: была опечатка в названии поля description -->
                                 <a href="#" class="btn btn-primary">Add to Cart</a>
                             </div>
                         </div>            
@@ -23,14 +23,8 @@
                 {% endfor %}
             </div>
         {% else %}
-        <p> No products available.</p>
-    {% endif %}
+            <p>No products available.</p>
+        {% endif %}
     </div>
 {% endblock %}
 
-
-
-
-
-
-                        <b>{{ product.name }}</b>  
