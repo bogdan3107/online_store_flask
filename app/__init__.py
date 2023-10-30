@@ -8,6 +8,7 @@ from flask_admin import Admin
 from flask_admin.contrib.fileadmin import FileAdmin
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_wtf import CSRFProtect
 from logging.handlers import SMTPHandler
 
 
@@ -17,6 +18,7 @@ bootstrap = Bootstrap()
 admin = Admin(name='Store admin', template_mode='bootstrap3')
 login = LoginManager()
 mail = Mail()
+#csrf = CSRFProtect()
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -32,6 +34,7 @@ def create_app(config_class=Config):
     admin.init_app(app)
     login.init_app(app)
     mail.init_app(app)
+    #csrf.init_app(app)
 
     
     from app.main import bp as main_bp
@@ -49,11 +52,12 @@ def create_app(config_class=Config):
 
     from app import models
 
-    from app.admin_panel.routes import ProductsAdminView, CategoryAdminView
+    from app.admin_panel.routes import ProductsAdminView, CategoryAdminView, UserAdminView
     file_admin = FileAdmin(app.config['PRODUCT_IMAGE_DIR'], 
                        name='Images', endpoint='images', url='/admin/images')
     admin.add_view(ProductsAdminView(models.Product, db.session))
     admin.add_view(CategoryAdminView(models.Category, db.session))
+    admin.add_view(UserAdminView(models.User, db.session))
     admin.add_view(file_admin)
 
 

@@ -1,6 +1,8 @@
-from flask import render_template, current_app, json, redirect, url_for, flash, request
+from flask import render_template, current_app, json, redirect, url_for, flash, request, jsonify
+from flask_login import current_user, login_required
+from app import db
 from app.main import bp
-from app.models import Product
+from app.models import Product, User, Order
 import json
 
 
@@ -14,14 +16,74 @@ def index():
 @bp.route('/products', methods=['GET', 'POST'])
 def products():
     products = Product.query.all()
+    #csrf_token = csrf._get_csrf_token()
 
     return render_template('products.html', title=('Products'), products=products)
 
 
+@bp.route('/customer/<username>', methods=['GET', 'POST'])
+@login_required
+def load_customer(username):
+    customer = User.query.filter_by(username=username).first_or_404()
+
+    return render_template('customer.html', customer=customer)
+     
+
+@bp.route('/shopping_cart', methods=['GET','POST'])
+@login_required
+def shopping_cart():
+    cart_items = Order.query.filter_by(customer=current_user, status='cart')
+    total_to_pay = 0
+    for item in cart_items:
+        total_to_pay += item.product.price * item.quantity
+    return render_template('shopping_cart.html', cart_items=cart_items, total_to_pay=total_to_pay, title='Your cart')
+    
+
+
 @bp.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
-    pass
+    if current_user.is_anonymous:
+        return jsonify({'message': 'You have to sign in to add a product to the cart!'}), 401
 
+    data = request.get_json()
+    product_id = data.get('product_id')
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'message': 'Product not found!'}), 404
+    
+    in_cart = Order.query.filter_by(product=product, customer=current_user, status='cart').first()
+    if in_cart:
+        in_cart.quantity += 1
+    else:
+        cart = Order(product=product, quantity=1, customer=current_user)
+        db.session.add(cart)
+        
+    db.session.commit()
+
+    return jsonify({'message': 'Product added to the cart'})
+
+
+@bp.route('/remove_from_cart', methods=['POST'])
+def remove_from_cart():
+    if current_user.is_anonymous:
+        return jsonify({'message': 'You are not permitted for this action!'}), 401
+    
+    data = request.get_json()
+    product_id = data.get('product_id')
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'message': 'Product not found!'}), 404
+    
+    in_cart = Order.query.filter_by(product=product, customer=current_user, status='cart').first()
+    if in_cart.quantity >= 1:
+        db.session.delete(in_cart)    
+        db.session.commit()
+
+    return jsonify({'message': 'Product removed from the cart'})
+    
+    
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
 def contact_us():

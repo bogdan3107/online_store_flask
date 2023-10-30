@@ -1,8 +1,10 @@
 from typing import Any
 from app import db, login
-from datetime import datetime
+from datetime import datetime, time
+from flask import current_app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+import jwt, json
 
 product_category_association = db.Table(
     'product_category_association',
@@ -49,6 +51,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    phone_number = db.Column(db.String(32))
+    delivery_address = db.Column(db.String(128))
     orders = db.relationship('Order', back_populates='customer')
     
 
@@ -60,6 +64,20 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            current_app.config['SECRET_KEY'], algorithm='HS256')
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, current_app.config['SECRET_KEY'],
+                            algorithms=['HS256'])['reset_password']
+        except:
+            return
+        return User.query.get(id)
 
 @login.user_loader
 def load_user(id):

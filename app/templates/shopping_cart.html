@@ -2,25 +2,37 @@
 
 {% block content %}
     <div class="container text-center">
-        <h1>Your Cart</h1>
-        <div class="row row-cols-auto">
-            {% for productId, quantity in temp_cart.items() %}
-                {% set product = product_by_id[productId] %}
-                <div class="col">
-                    <div class="card">
-                        {% if product.image_path %}
-                            <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name }}" width="144" height="144">
-                        {% else %}
-                            <img src="{{ url_for('static', filename='img2.jpg') }}" alt="{{ product.name }}" width="144" height="144">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">Quantity: {{ quantity }}</p>
-                        </div>
-                    </div>            
-                </div>
-            {% endfor %}
-        </div>
+        <h1>Your Shopping Cart</h1>
+        {% if cart_items %}
+            <div class="row row-cols-auto">
+                {% for item in cart_items %}
+                    <div class="col">
+                        <div class="card">
+                            {% if item.product.image_path %}
+                                <img src="{{ url_for('static', filename=item.product.image_path) }}" alt="{{ item.product.name }}" width="144" height="144">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='img2.jpg') }}" alt="{{ item.product.name }}" width="144" height="144">
+                            {% endif %}
+                            <div class="card-body">
+                                <h3 class="card-title">{{ item.product.name }}</h5>
+                                <h5 class="card-title">Quantity: 
+                                    <a class="btn btn-primary">-</a>
+                                    {{ item.quantity }}
+                                    <a class="btn btn-primary">+</a>
+                                </h5>
+                                <h5 class="card-title">Price: {{ item.product.price * item.quantity }} USD</h5>
+                                <a class="btn btn-primary" onclick="removeFromCart('{{ item.product.id }}')">Remove from Cart</a>
+                            </div>
+                        </div>            
+                    </div>
+                {% endfor %}
+            </div>
+            <p>Total to pay: {{ total_to_pay }} USD</p><br>
+            <a href="#" class="btn btn-primary">Proceed to Checkout</a>
+        {% else %}
+            <p>Your shopping cart is empty.</p>
+        {% endif %}
     </div>
 {% endblock %}
+
 
