@@ -1,24 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <table class=" table table-hover">
-        <tr>
-            <td>
-                <h1>Customer: {{ customer.username }}</h1>
-                {% if customer.phone_number %}
-                <p>Your phone number is: {{ customer.phone_number }}</p>
-                {% endif %}
-                {% if customer.delivery_address %}
-                <p>Your delivery address is: {{ customer.delivery_address }}</p>
-                {% endif %}
-                {% if customer.orders %}
-                    {% for order in customer.orders %}
-                        {% if order.status != 'cart' %}
-                        <a href="#">Order {{ order.id }}</a>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            </td>
-        </tr>
-    </table>
+  {% if customer == current_user %}
+    <div class="container">
+      <h1>Customer: {{ customer.username }}</h1>
+      {% if customer.phone_number %}
+        <p>Your phone number is: {{ customer.phone_number }}</p>
+      {% endif %}
+      {% if customer.delivery_address %}
+        <p>Your delivery address is: {{ customer.delivery_address }}</p>
+      {% endif %}
+      <a href="{{ url_for('main.edit_profile') }}" class="btn btn-primary">Edit your Profile</a>
+      {% if customer.orders %}
+        {% for order in customer.orders %}
+          {% if order.status != 'cart' %}
+            <a href="#">Order {{ order.id }}</a>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  {% endif %}
 {% endblock %}

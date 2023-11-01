@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container text-center">
+            <h1>{{ product.name }}</h1>
+            <div class="row align-items-center">
+                <div class="col">
+                    {% if product.image_path %}
+                        <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name }}" width="auto" height="auto">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img2.jpg') }}" alt="{{ product.name }}" width="auto" height="auto">
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <h3>{{ product.description }}</h2>
+                    <h2>Price: {{ product.price }}</h2>
+                    <a class="btn btn-primary" onclick="addToCart('{{ product.id }}')">Add to Cart</a>
+                </div>
+            </div>
+    </div>
+{% endblock %}

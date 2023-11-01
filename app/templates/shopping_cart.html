@@ -7,7 +7,7 @@
             <div class="row row-cols-auto">
                 {% for item in cart_items %}
                     <div class="col">
-                        <div class="card">
+                        <div class="card" id="cartProductID_{{ item.product.id }}">
                             {% if item.product.image_path %}
                                 <img src="{{ url_for('static', filename=item.product.image_path) }}" alt="{{ item.product.name }}" width="144" height="144">
                             {% else %}
@@ -15,11 +15,11 @@
                             {% endif %}
                             <div class="card-body">
                                 <h3 class="card-title">{{ item.product.name }}</h5>
-                                <h5 class="card-title">Quantity: 
-                                    <a class="btn btn-primary">-</a>
-                                    {{ item.quantity }}
-                                    <a class="btn btn-primary">+</a>
-                                </h5>
+                                <h5 class="card-title" id="cartItemCount_{{ item.product.id }}">Quantity: 
+                                    <a class="btn btn-primary" onclick="decreaseQuantity('{{ item.product.id }}')">-</a>
+                                    <span id="quantityDisplay_{{ item.product.id }}">{{ item.quantity }}</span>
+                                    <a class="btn btn-primary" onclick="increaseQuantity('{{ item.product.id }}')">+</a>
+                                </h5>    
                                 <h5 class="card-title">Price: {{ item.product.price * item.quantity }} USD</h5>
                                 <a class="btn btn-primary" onclick="removeFromCart('{{ item.product.id }}')">Remove from Cart</a>
                             </div>

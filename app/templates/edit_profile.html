@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <h2>Edit Profile</h2>
+    <form method="POST" action="{{ url_for('main.edit_profile') }}">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control", placeholder="Enter your username") }}
+        {% if form.username.errors %}
+          <div class="invalid-feedback">
+            {{ form.username.errors[0] }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.delivery_address.label(class="form-label") }}
+        {{ form.delivery_address(class="form-control", placeholder="Enter your delivery address") }}
+        {% if form.delivery_address.errors %}
+          <div class="invalid-feedback">
+            {{ form.delivery_address.errors[0] }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.phone_number.label(class="form-label") }}
+        {{ form.phone_number(class="form-control", placeholder="Enter your phone number") }}
+        {% if form.phone_number.errors %}
+          <div class="invalid-feedback">
+            {{ form.phone_number.errors[0] }}
+          </div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+{% endblock %}
