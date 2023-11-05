@@ -16,11 +16,11 @@
                             <div class="card-body">
                                 <h3 class="card-title">{{ item.product.name }}</h5>
                                 <h5 class="card-title" id="cartItemCount_{{ item.product.id }}">Quantity: 
-                                    <a class="btn btn-primary" onclick="decreaseQuantity('{{ item.product.id }}')">-</a>
+                                    <a class="btn btn-primary" onclick="decreaseQuantity(this)" data-product-id="{{ item.product.id }}" data-product-price="{{ item.product.price }}">-</a>
                                     <span id="quantityDisplay_{{ item.product.id }}">{{ item.quantity }}</span>
-                                    <a class="btn btn-primary" onclick="increaseQuantity('{{ item.product.id }}')">+</a>
+                                    <a class="btn btn-primary" onclick="increaseQuantity(this)" data-product-id="{{ item.product.id }}" data-product-price="{{ item.product.price }}">+</a>
                                 </h5>    
-                                <h5 class="card-title">Price: {{ item.product.price * item.quantity }} USD</h5>
+                                <span id="priceDisplay_{{ item.product.id }}">Price: {{ "%.2f"|format(item.product.price * item.quantity) }} USD</span><br>
                                 <a class="btn btn-primary" onclick="removeFromCart('{{ item.product.id }}')">Remove from Cart</a>
                             </div>
                         </div>            

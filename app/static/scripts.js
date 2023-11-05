@@ -13,7 +13,7 @@ function addToCart(productId) {
       return response.json();
     })
     .then(data => {
-        console.log(data.message); // Выведите сообщение в консоль для отладки
+        console.log(data.message);
     })
     .catch(error => {
       console.error('Fetch Error:', error.message);
@@ -34,8 +34,8 @@ function removeFromCart(productID) {
       return response.json();
     })
     .then(data => {
-      console.log(data.message); // for error logging
-      var updatedItemCount = data.item_counts[productID];
+        console.log(data.message);
+        var updatedItemCount = data.item_counts[productID];
         var cartProductID = document.getElementById(`cartProductID_${productID}`);
 
         if(updatedItemCount === undefined) {
@@ -48,7 +48,9 @@ function removeFromCart(productID) {
       console.error('Fetch error:', error.message);
     });
   }
-function increaseQuantity(productID) {
+function increaseQuantity(element) {
+    var productID = element.getAttribute('data-product-id');
+    var productPrice = element.getAttribute('data-product-price');
     fetch('/update_quantity', {
         method: 'POST',
         headers: {
@@ -65,12 +67,18 @@ function increaseQuantity(productID) {
     .then(data => {
         var updatedItemCount = data.item_counts[productID];
         document.getElementById(`quantityDisplay_${productID}`).innerText = updatedItemCount;
+        var itemInCartPrice = "Price: " + (productPrice * updatedItemCount).toFixed(2) + " USD";
+        document.getElementById(`priceDisplay_${productID}`).innerText = itemInCartPrice;
+        
     })
     .catch(error => {
         console.error('Error updating quantity:', error.message);
     });
 }
-function decreaseQuantity(productID) {
+function decreaseQuantity(element) {
+    var productID = element.getAttribute('data-product-id');
+    var productPrice = element.getAttribute('data-product-price');
+
     fetch('/update_quantity', {
         method: 'POST',
         headers: {
@@ -92,6 +100,8 @@ function decreaseQuantity(productID) {
             cartProductID.style.display = 'none'
         } else {
             document.getElementById(`quantityDisplay_${productID}`).innerText = updatedItemCount;
+            var itemInCartPrice = "Price: " + (productPrice * updatedItemCount).toFixed(2) + " USD";
+            document.getElementById(`priceDisplay_${productID}`).innerText = itemInCartPrice;
         }
     })
     .catch(error => {

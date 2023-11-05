@@ -52,10 +52,8 @@ def edit_profile():
 @login_required
 def shopping_cart():
     cart_items = Order.query.filter_by(customer=current_user, status='cart')
-    total_to_pay = 0
-    for item in cart_items:
-        total_to_pay += item.product.price * item.quantity
-    return render_template('shopping_cart.html', cart_items=cart_items, total_to_pay=total_to_pay, title='Your cart')
+    
+    return render_template('shopping_cart.html', cart_items=cart_items, title='Your cart')
     
 @bp.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -126,40 +124,16 @@ def update_quantity():
             in_cart.quantity -= 1
         else:
             db.session.delete(in_cart)
-    
-    db.session.commit()
 
+    db.session.commit()
     cart_items = Order.query.filter_by(customer=current_user, status='cart').all()
     item_counts = {str(item.product_id): item.quantity for item in cart_items}
 
-    return jsonify({'item_counts': item_counts})
-
-
-
+    return jsonify({'item_counts': item_counts,})
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
 def contact_us():
     pass
-
-@bp.route('/shopping_temp_cart', methods=['GET'])
-def shopping_temp_cart():
-    try:
-        products = Product.query.all()
-        product_by_id = {product.id: product for product in products}
-
-        # Получаем temp_cart из localStorage
-        temp_cart_str = request.get_json().get('temp_cart')
-        temp_cart = json.loads(temp_cart_str) if temp_cart_str else {}
-
-        print(temp_cart_str)
-        print(temp_cart)
-        print(product_by_id)
-
-    except json.JSONDecodeError:
-        print('Error decoding the shopping cart data.', 'error')
-        return redirect(url_for('main.index'))
-
-    return render_template('shopping_temp_cart.html', title='Shopping cart', temp_cart=temp_cart, product_by_id=product_by_id)
 
 @bp.route('/search', methods=['POST'])
 def search():
