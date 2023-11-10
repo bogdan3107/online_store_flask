@@ -1,10 +1,9 @@
-from flask import render_template, current_app, json, redirect, url_for, flash, request, jsonify
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import current_user, login_required
 from app import db
 from app.main import bp
 from app.models import Product, User, Order
 from app.main.forms import EditProfileForm
-import json
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
@@ -75,8 +74,10 @@ def add_to_cart():
         db.session.add(cart)
 
     db.session.commit()
+
+    cart_count = Order.query.filter_by(customer=current_user, status='cart').count()
     
-    return jsonify({'message': 'Product added to the cart'})
+    return jsonify({'message': 'Product added to the cart', 'cart_count': cart_count})
 
 @bp.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
@@ -97,8 +98,9 @@ def remove_from_cart():
 
     cart_items = Order.query.filter_by(customer=current_user, status='cart').all()
     item_counts = {str(item.product_id): item.quantity for item in cart_items}
+    cart_count = Order.query.filter_by(customer=current_user, status='cart').count()
     
-    return jsonify({'message': 'Product removed from the cart', 'item_counts': item_counts})
+    return jsonify({'message': 'Product removed from the cart', 'item_counts': item_counts, 'cart_count': cart_count})
 
 @bp.route('/update_quantity', methods=['POST'])
 def update_quantity():
@@ -129,7 +131,7 @@ def update_quantity():
     cart_items = Order.query.filter_by(customer=current_user, status='cart').all()
     item_counts = {str(item.product_id): item.quantity for item in cart_items}
 
-    return jsonify({'item_counts': item_counts,})
+    return jsonify({'item_counts': item_counts})
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
 def contact_us():

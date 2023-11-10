@@ -1,3 +1,18 @@
+function updateCartCountInLocalStorage(count) {
+    localStorage.setItem('cartCount', count);
+}
+function getCartCountFromLocalStorage() {
+    return localStorage.getItem('cartCount');
+}
+document.addEventListener('DOMContentLoaded', function() {
+    var savedCount = getCartCountFromLocalStorage();
+    if (savedCount > 0) {
+        document.getElementById(`productCount`).innerText = savedCount;
+    }
+});
+function updateCartCount(count) {
+    document.getElementById('productCount').innerText = count;
+}
 function addToCart(productId) {
     fetch('/add_to_cart', {
       method: 'POST',
@@ -14,7 +29,19 @@ function addToCart(productId) {
     })
     .then(data => {
         console.log(data.message);
+        var totalItemsInCart = data.cart_count;
+        var productCountElement = document.getElementById('productCount');
+        updateCartCount(totalItemsInCart);
+        updateCartCountInLocalStorage(totalItemsInCart);
+        
+        if (totalItemsInCart > 0) {
+            productCountElement.style.display = 'inline';
+            document.getElementById(`productCount`).innerText = totalItemsInCart;
+        } else {
+            productCountElement.style.display = 'none';
+        }
     })
+    
     .catch(error => {
       console.error('Fetch Error:', error.message);
     });
@@ -37,6 +64,19 @@ function removeFromCart(productID) {
         console.log(data.message);
         var updatedItemCount = data.item_counts[productID];
         var cartProductID = document.getElementById(`cartProductID_${productID}`);
+        var totalItemsInCart = data.cart_count;
+        var productCountElement = document.getElementById('productCount');
+
+        document.getElementById(`productCount`).innerText = totalItemsInCart;
+
+        updateCartCountInLocalStorage(totalItemsInCart);
+
+        if (totalItemsInCart > 0) {
+            productCountElement.style.display = 'inline';
+            document.getElementById(`productCount`).innerText = totalItemsInCart;
+        } else {
+            productCountElement.style.display = 'none';
+        }
 
         if(updatedItemCount === undefined) {
             cartProductID.style.display = 'none'
