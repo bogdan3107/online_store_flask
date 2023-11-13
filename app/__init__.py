@@ -20,6 +20,7 @@ login = LoginManager()
 mail = Mail()
 #csrf = CSRFProtect()
 logging.basicConfig(level=logging.DEBUG)
+index_dir = 'product'
 
 
 

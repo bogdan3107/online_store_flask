@@ -1,9 +1,13 @@
-from flask import render_template, redirect, url_for, flash, request, jsonify
+from flask import render_template, redirect, url_for, flash, request, jsonify, g
 from flask_login import current_user, login_required
 from app import db
 from app.main import bp
 from app.models import Product, User, Order
-from app.main.forms import EditProfileForm
+from app.main.forms import EditProfileForm, SearchForm
+
+@bp.before_app_request
+def before_request():
+    g.search_form = SearchForm()
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
@@ -137,6 +141,17 @@ def update_quantity():
 def contact_us():
     pass
 
-@bp.route('/search', methods=['POST'])
+@bp.route('/search')
 def search():
-    pass
+    g.search_form = SearchForm()
+
+    if not g.search_form.validate():
+        return redirect(url_for('main.products'))
+
+    query = request.args.get('q', '')
+    if query:
+        products = Product.query.filter(Product.name.contains(query)).all()
+    else:
+        products = []
+
+    return render_template('search.html', title=('Search'), products=products, form=g.search_form)
