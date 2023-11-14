@@ -7,23 +7,23 @@ from app import db
 from werkzeug.utils import secure_filename
 import os
 
-
-
 class ProductsAdminView(ModelView):
     column_display_pk = True
     column_editable_list = ['name', 'description', 'price', 'stock', 'category']
     can_delete = True
-
 
 class CategoryAdminView(ModelView):
     column_display_pk =True
     form_columns = ['name']
     can_delete = False
 
-
 class UserAdminView(ModelView):
     column_display_pk =True
     column_exclude_list = ['password_hash']
+
+class OrderAdminView(ModelView):
+    column_display_pk =True
+
 
 
 """

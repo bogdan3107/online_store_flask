@@ -3,7 +3,8 @@ from flask_login import current_user, login_required
 from app import db
 from app.main import bp
 from app.models import Product, User, Order
-from app.main.forms import EditProfileForm, SearchForm
+from app.main.forms import EditProfileForm, SearchForm, CheckoutForm
+from app.emails import send_email
 
 @bp.before_app_request
 def before_request():
@@ -70,14 +71,7 @@ def add_to_cart():
     if not product:
         return jsonify({'message': 'Product not found!'}), 404
     
-    in_cart = Order.query.filter_by(product=product, customer=current_user, status='cart').first()
-    if in_cart:
-        in_cart.quantity += 1
-    else:
-        cart = Order(product=product, quantity=1, customer=current_user)
-        db.session.add(cart)
-
-    db.session.commit()
+    Order.add_to_cart(product, current_user)
 
     cart_count = Order.query.filter_by(customer=current_user, status='cart').count()
     
@@ -136,6 +130,24 @@ def update_quantity():
     item_counts = {str(item.product_id): item.quantity for item in cart_items}
 
     return jsonify({'item_counts': item_counts})
+
+@bp.route('/checkout', methods=['GET', 'POST'])
+@login_required
+def checkout():
+    form = CheckoutForm()
+    customer_info = EditProfileForm(current_user.username)
+    customer_info.username.data = current_user.username
+    customer_info.delivery_address.data = current_user.delivery_address
+    customer_info.phone_number.data = current_user.phone_number
+    cart_items = Order.query.filter_by(customer=current_user, status='cart')
+    
+    if form.validate_on_submit():
+        cart_items.status = 'in_process'
+        order_number = None
+        db.session.commit()
+        
+        send_email('[Glo Shop] Order <>')
+
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
 def contact_us():

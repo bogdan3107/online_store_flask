@@ -23,6 +23,9 @@ class EditProfileForm(FlaskForm):
             if user is not None:
                 raise ValidationError(('Please use a different username.'))
             
+class CheckoutForm(FlaskForm):
+    submit = SubmitField('Place an order')
+            
 class SearchForm(FlaskForm):
     q = StringField(('I search'), validators=[DataRequired()])
     submit = SubmitField(('Search'))

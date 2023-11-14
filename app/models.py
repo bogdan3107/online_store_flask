@@ -2,48 +2,15 @@ from typing import Any
 from app import db, login
 from datetime import datetime, time
 from flask import current_app
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.search import add_to_index, remove_from_index
 import jwt
-
-class SearchableMixin(object):
-    @classmethod
-    def before_commit(cls, session):
-        session._changes = {
-            'add': list(session.new),
-            'update': list(session.dirty),
-            'delete': list(session.deleted)
-        }
-
-    @classmethod
-    def after_commit(cls, session):
-        for obj in session._changes['add']:
-            if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
-        for obj in session._changes['update']:
-            if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
-        for obj in session._changes['delete']:
-            if isinstance(obj, SearchableMixin):
-                remove_from_index(obj.__tablename__, obj)
-        session._changes = None
-
-    @classmethod
-    def reindex(cls):
-        for obj in cls.query:
-            add_to_index(cls.__tablename__, obj)
-
-
-db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
-db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
 product_category_association = db.Table(
     'product_category_association',
     db.Column('product_id', db.Integer, db.ForeignKey('product.id')),
     db.Column('category_id', db.Integer, db.ForeignKey('category.id'))
 )
-
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -55,8 +22,23 @@ class Order(db.Model):
     status = db.Column(db.String(16), default='cart', server_default='cart')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    @classmethod
+    def add_to_cart(cls, product, customer):
+        in_cart = Order.query.filter_by(product=product, customer=current_user, status='cart').first()
+        if in_cart:
+            in_cart.quantity += 1
+        else:
+            cart = Order(product=product, quantity=1, customer=current_user)
+            db.session.add(cart)
 
-class Product(SearchableMixin, db.Model):
+        db.session.commit()
+
+        return in_cart
+
+
+
+
+class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, nullable=False)
     description = db.Column(db.String(140))

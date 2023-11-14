@@ -16,9 +16,9 @@
                             <div class="card-body">
                                 <h3 class="card-title">{{ item.product.name }}</h5>
                                 <h5 class="card-title" id="cartItemCount_{{ item.product.id }}">Quantity: 
-                                    <a class="btn btn-primary" onclick="decreaseQuantity(this)" data-product-id="{{ item.product.id }}" data-product-price="{{ item.product.price }}">-</a>
+                                    <button class="btn btn-primary" id="decreaseButton_{{ item.product.id }}" onclick="decreaseQuantity(this)" data-product-id="{{ item.product.id }}" data-product-price="{{ item.product.price }}" {% if item.quantity == 1 %}disabled{% endif %}>-</button>
                                     <span id="quantityDisplay_{{ item.product.id }}">{{ item.quantity }}</span>
-                                    <a class="btn btn-primary" onclick="increaseQuantity(this)" data-product-id="{{ item.product.id }}" data-product-price="{{ item.product.price }}">+</a>
+                                    <button class="btn btn-primary" onclick="increaseQuantity(this)" data-product-id="{{ item.product.id }}" data-product-price="{{ item.product.price }}">+</button>
                                 </h5>    
                                 <span id="priceDisplay_{{ item.product.id }}">Price: {{ "%.2f"|format(item.product.price * item.quantity) }} USD</span><br>
                                 <a class="btn btn-primary" onclick="removeFromCart('{{ item.product.id }}')">Remove from Cart</a>

@@ -1,18 +1,22 @@
 function updateCartCountInLocalStorage(count) {
     localStorage.setItem('cartCount', count);
 }
+
 function getCartCountFromLocalStorage() {
     return localStorage.getItem('cartCount');
 }
+
 document.addEventListener('DOMContentLoaded', function() {
     var savedCount = getCartCountFromLocalStorage();
     if (savedCount > 0) {
         document.getElementById(`productCount`).innerText = savedCount;
     }
 });
+
 function updateCartCount(count) {
     document.getElementById('productCount').innerText = count;
 }
+
 function addToCart(productId) {
     fetch('/add_to_cart', {
       method: 'POST',
@@ -46,6 +50,7 @@ function addToCart(productId) {
       console.error('Fetch Error:', error.message);
     });
   }
+
 function removeFromCart(productID) {
     fetch('/remove_from_cart',{
       method: 'POST',
@@ -88,6 +93,7 @@ function removeFromCart(productID) {
       console.error('Fetch error:', error.message);
     });
   }
+
 function increaseQuantity(element) {
     var productID = element.getAttribute('data-product-id');
     var productPrice = element.getAttribute('data-product-price');
@@ -109,12 +115,17 @@ function increaseQuantity(element) {
         document.getElementById(`quantityDisplay_${productID}`).innerText = updatedItemCount;
         var itemInCartPrice = "Price: " + (productPrice * updatedItemCount).toFixed(2) + " USD";
         document.getElementById(`priceDisplay_${productID}`).innerText = itemInCartPrice;
+        var decreaseButton = document.getElementById(`decreaseButton_${productID}`);
+        if (updatedItemCount > 1) {
+            decreaseButton.disabled = false
+        }
         
     })
     .catch(error => {
         console.error('Error updating quantity:', error.message);
     });
 }
+
 function decreaseQuantity(element) {
     var productID = element.getAttribute('data-product-id');
     var productPrice = element.getAttribute('data-product-price');
@@ -135,6 +146,7 @@ function decreaseQuantity(element) {
     .then(data => {
         var updatedItemCount = data.item_counts[productID];
         var cartProductID = document.getElementById(`cartProductID_${productID}`);
+        var decreaseButton = document.getElementById(`decreaseButton_${productID}`);
 
         if(updatedItemCount === undefined) {
             cartProductID.style.display = 'none'
@@ -142,6 +154,7 @@ function decreaseQuantity(element) {
             document.getElementById(`quantityDisplay_${productID}`).innerText = updatedItemCount;
             var itemInCartPrice = "Price: " + (productPrice * updatedItemCount).toFixed(2) + " USD";
             document.getElementById(`priceDisplay_${productID}`).innerText = itemInCartPrice;
+            decreaseButton.disabled = (updatedItemCount === 1);
         }
     })
     .catch(error => {
