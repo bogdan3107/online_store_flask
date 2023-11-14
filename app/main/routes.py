@@ -139,7 +139,7 @@ def checkout():
     customer_info.username.data = current_user.username
     customer_info.delivery_address.data = current_user.delivery_address
     customer_info.phone_number.data = current_user.phone_number
-    cart_items = Order.query.filter_by(customer=current_user, status='cart')
+    cart_items = Order.query.filter_by(customer=current_user, status='cart').all()
     
     if form.validate_on_submit():
         cart_items.status = 'in_process'

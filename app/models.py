@@ -34,10 +34,7 @@ class Order(db.Model):
         db.session.commit()
 
         return in_cart
-
-
-
-
+    
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, nullable=False)
@@ -69,7 +66,6 @@ class User(UserMixin, db.Model):
     delivery_address = db.Column(db.String(128))
     orders = db.relationship('Order', back_populates='customer')
     
-
     def __repr__(self) -> str:
         return '<User {}'.format(self.username)
 
