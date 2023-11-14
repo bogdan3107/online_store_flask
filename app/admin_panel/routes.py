@@ -21,7 +21,7 @@ class UserAdminView(ModelView):
     column_display_pk =True
     column_exclude_list = ['password_hash']
 
-class OrderAdminView(ModelView):
+class OrderItemAdminView(ModelView):
     column_display_pk =True
 
 

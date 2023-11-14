@@ -52,13 +52,13 @@ def create_app(config_class=Config):
 
     from app import models
 
-    from app.admin_panel.routes import ProductsAdminView, CategoryAdminView, UserAdminView, OrderAdminView
+    from app.admin_panel.routes import ProductsAdminView, CategoryAdminView, UserAdminView, OrderItemAdminView
     file_admin = FileAdmin(app.config['PRODUCT_IMAGE_DIR'], 
                        name='Images', endpoint='images', url='/admin/images')
     admin.add_view(ProductsAdminView(models.Product, db.session))
     admin.add_view(CategoryAdminView(models.Category, db.session))
     admin.add_view(UserAdminView(models.User, db.session))
-    admin.add_view(OrderAdminView(models.Order, db.session))
+    admin.add_view(OrderItemAdminView(models.OrderItem, db.session))
     admin.add_view(file_admin)
 
 

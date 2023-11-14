@@ -1,8 +1,8 @@
-from typing import Any
-from app import db, login
+from app import db, login, mail
 from datetime import datetime, time
-from flask import current_app
+from flask import current_app, render_template, json
 from flask_login import UserMixin, current_user
+from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 
@@ -12,29 +12,60 @@ product_category_association = db.Table(
     db.Column('category_id', db.Integer, db.ForeignKey('category.id'))
 )
 
-class Order(db.Model):
+class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    product = db.relationship('Product', back_populates='order', lazy=True)
+    product = db.relationship('Product', back_populates='order_items', lazy=True)
     quantity = db.Column(db.Integer)
-    customer = db.relationship('User', back_populates='orders')
-    created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
     status = db.Column(db.String(16), default='cart', server_default='cart')
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
+    order = db.relationship('Order', back_populates='items')
+    customer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    customer = db.relationship('User', back_populates='order_item')
+    
     @classmethod
     def add_to_cart(cls, product, customer):
-        in_cart = Order.query.filter_by(product=product, customer=current_user, status='cart').first()
+        in_cart = OrderItem.query.filter_by(product=product, customer=customer, status='cart').first()
         if in_cart:
             in_cart.quantity += 1
         else:
-            cart = Order(product=product, quantity=1, customer=current_user)
+            cart = OrderItem(product=product, quantity=1, customer=current_user)
             db.session.add(cart)
 
         db.session.commit()
 
         return in_cart
     
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    status = db.Column(db.String(16), default='cart', server_default='cart')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
+    customer = db.relationship('User', back_populates='orders')
+
+    def send_order_confirmation(self):
+        try:
+            customer = self.customer
+            order_items = []
+            for item in self.items:
+                order_items.append({'name': item.product.name,
+                                    'quantity': item.quantity,
+                                    'price': item.product.price * item.quantity})
+                
+            msg = Message('[Glo Shop] Order {} confirmed'.format(self.id),
+                          sender=current_app.config['ADMINS'][0],
+                          recipients=[customer.email])
+            msg.body = render_template('email/order_confirmation.txt', user=customer)
+            msg.html = render_template('email/order_confirmation.html', user=customer)
+
+            msg.attach('order.json', 'application/json', json.dumps({'order': order_items}, indent=4))
+
+            mail.send(msg)
+        except Exception as e:
+            print(f"error sending order confirmation email: {e}")
+
+   
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, nullable=False)
@@ -44,10 +75,10 @@ class Product(db.Model):
     stock = db.Column(db.Integer)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category', secondary=product_category_association, back_populates='products')
-    order = db.relationship('Order', back_populates='product', lazy=True)
+    order_items = db.relationship('OrderItem', back_populates='product', lazy=True)
 
     def __repr__(self) -> str:
-        return f"<Product(id={self.id}, name='{self.name}', price={self.price}, stock={self.stock}, orders={getattr(self, 'orders', None)})>"
+        return f"<Product(id={self.id}, name='{self.name}', price={self.price}, stock={self.stock}, order_items={getattr(self, 'order_items', None)})>"
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -65,6 +96,7 @@ class User(UserMixin, db.Model):
     phone_number = db.Column(db.String(32))
     delivery_address = db.Column(db.String(128))
     orders = db.relationship('Order', back_populates='customer')
+    order_item = db.relationship('OrderItem', back_populates='customer')
     
     def __repr__(self) -> str:
         return '<User {}'.format(self.username)

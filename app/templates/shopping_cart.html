@@ -28,7 +28,7 @@
                 {% endfor %}
             </div>
             <p>Total to pay: {{ total_to_pay }} USD</p><br>
-            <a href="#" class="btn btn-primary">Proceed to Checkout</a>
+            <a href="{{ url_for('main.checkout') }}" class="btn btn-primary">Proceed to Checkout</a>
         {% else %}
             <p>Your shopping cart is empty.</p>
         {% endif %}

@@ -1,8 +1,8 @@
-from flask import render_template, redirect, url_for, flash, request, jsonify, g
+from flask import render_template, redirect, url_for, flash, request, jsonify, g, current_app
 from flask_login import current_user, login_required
 from app import db
 from app.main import bp
-from app.models import Product, User, Order
+from app.models import Product, User, Order, OrderItem
 from app.main.forms import EditProfileForm, SearchForm, CheckoutForm
 from app.emails import send_email
 
@@ -55,7 +55,7 @@ def edit_profile():
 @bp.route('/shopping_cart', methods=['GET','POST'])
 @login_required
 def shopping_cart():
-    cart_items = Order.query.filter_by(customer=current_user, status='cart')
+    cart_items = OrderItem.query.filter_by(customer=current_user, status='cart')
     
     return render_template('shopping_cart.html', cart_items=cart_items, title='Your cart')
     
@@ -71,9 +71,9 @@ def add_to_cart():
     if not product:
         return jsonify({'message': 'Product not found!'}), 404
     
-    Order.add_to_cart(product, current_user)
+    OrderItem.add_to_cart(product, current_user)
 
-    cart_count = Order.query.filter_by(customer=current_user, status='cart').count()
+    cart_count = OrderItem.query.filter_by(customer=current_user, status='cart').count()
     
     return jsonify({'message': 'Product added to the cart', 'cart_count': cart_count})
 
@@ -89,14 +89,14 @@ def remove_from_cart():
     if not product:
         return jsonify({'message': 'Product not found!'}), 404
     
-    in_cart = Order.query.filter_by(product=product, customer=current_user, status='cart').first()
+    in_cart = OrderItem.query.filter_by(product=product, customer=current_user, status='cart').first()
     if in_cart.quantity >= 1:
         db.session.delete(in_cart)    
         db.session.commit()
 
-    cart_items = Order.query.filter_by(customer=current_user, status='cart').all()
+    cart_items = OrderItem.query.filter_by(customer=current_user, status='cart').all()
     item_counts = {str(item.product_id): item.quantity for item in cart_items}
-    cart_count = Order.query.filter_by(customer=current_user, status='cart').count()
+    cart_count = OrderItem.query.filter_by(customer=current_user, status='cart').count()
     
     return jsonify({'message': 'Product removed from the cart', 'item_counts': item_counts, 'cart_count': cart_count})
 
@@ -113,7 +113,7 @@ def update_quantity():
     if not product:
         return jsonify({'message': 'Product not found'}), 404
     
-    in_cart = Order.query.filter_by(product=product, customer=current_user, status='cart').first()
+    in_cart = OrderItem.query.filter_by(product=product, customer=current_user, status='cart').first()
     if not in_cart:
         return jsonify({'message': 'Product not in cart'}), 404
     
@@ -126,7 +126,7 @@ def update_quantity():
             db.session.delete(in_cart)
 
     db.session.commit()
-    cart_items = Order.query.filter_by(customer=current_user, status='cart').all()
+    cart_items = OrderItem.query.filter_by(customer=current_user, status='cart').all()
     item_counts = {str(item.product_id): item.quantity for item in cart_items}
 
     return jsonify({'item_counts': item_counts})
@@ -139,14 +139,24 @@ def checkout():
     customer_info.username.data = current_user.username
     customer_info.delivery_address.data = current_user.delivery_address
     customer_info.phone_number.data = current_user.phone_number
-    cart_items = Order.query.filter_by(customer=current_user, status='cart').all()
+    cart_items = OrderItem.query.filter_by(customer=current_user, status='cart').all()
     
     if form.validate_on_submit():
-        cart_items.status = 'in_process'
-        order_number = None
+        order = Order(status = 'in_process',
+                      items = cart_items,
+                      customer = current_user,
+                      )
+        for item in cart_items:
+            db.session.add(item)  # Добавьте каждый OrderItem в сессию перед commit
+        db.session.add(order)
         db.session.commit()
+        flash('Your order placed successfully!')
+        order.send_order_confirmation()
+        return redirect(url_for('main.load_customer', username=current_user.username))
+    
+    return render_template('checkout.html', title=('Checkout'), form=form, customer_info=customer_info, cart_items=cart_items)
+
         
-        send_email('[Glo Shop] Order <>')
 
 
 @bp.route('/contact_us', methods=['GET', 'POST'])

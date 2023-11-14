@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>Checkout</h2>
+    <form method="post" action="{{ url_for('main.checkout') }}" class="mt-4">
+      {{ form.hidden_tag() }}
+      <div class="row">
+        <div class="col-md-6">
+          <h4>Customer Information</h4>
+          <div class="form-group">
+            {{ customer_info.username.label(class="form-label") }}
+            {{ customer_info.username(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ customer_info.delivery_address.label(class="form-label") }}
+            {{ customer_info.delivery_address(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ customer_info.phone_number.label(class="form-label") }}
+            {{ customer_info.phone_number(class="form-control") }}
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h4>Order Summary</h4>
+          {% for item in cart_items %}
+            <div class="mb-3">
+              <strong>{{ item.product.name }}</strong>
+              <p>Quantity: {{ item.quantity }}</p>
+              <p>Price: ${{ item.product.price * item.quantity }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">Place Order</button>
+    </form>
+  </div>
+{% endblock %}
