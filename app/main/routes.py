@@ -147,17 +147,17 @@ def checkout():
                       customer = current_user,
                       )
         for item in cart_items:
-            db.session.add(item)  # Добавьте каждый OrderItem в сессию перед commit
+            db.session.add(item)
         db.session.add(order)
         db.session.commit()
+
+        OrderItem.clear_cart(current_user)
+
         flash('Your order placed successfully!')
         order.send_order_confirmation()
         return redirect(url_for('main.load_customer', username=current_user.username))
     
     return render_template('checkout.html', title=('Checkout'), form=form, customer_info=customer_info, cart_items=cart_items)
-
-        
-
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
 def contact_us():

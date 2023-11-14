@@ -1,6 +1,6 @@
 from app import db, login, mail
 from datetime import datetime, time
-from flask import current_app, render_template, json
+from flask import current_app, render_template, json, jsonify
 from flask_login import UserMixin, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -35,6 +35,13 @@ class OrderItem(db.Model):
         db.session.commit()
 
         return in_cart
+    
+    @classmethod
+    def clear_cart(cls, customer):
+        cart_items = cls.query.filter_by(customer=customer, status='cart').all()
+        for cart_item in cart_items:
+            db.session.delete(cart_item)
+        db.session.commit()
     
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)

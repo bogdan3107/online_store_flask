@@ -17,6 +17,10 @@ function updateCartCount(count) {
     document.getElementById('productCount').innerText = count;
 }
 
+function clearCart() {
+    localStorage.setItem('cartCount', 0);
+}
+
 function addToCart(productId) {
     fetch('/add_to_cart', {
       method: 'POST',
