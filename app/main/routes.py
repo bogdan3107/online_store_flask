@@ -165,15 +165,12 @@ def contact_us():
 
 @bp.route('/search')
 def search():
-    g.search_form = SearchForm()
-
     if not g.search_form.validate():
-        return redirect(url_for('main.products'))
-
-    query = request.args.get('q', '')
-    if query:
-        products = Product.query.filter(Product.name.contains(query)).all()
-    else:
-        products = []
-
-    return render_template('search.html', title=('Search'), products=products, form=g.search_form)
+        return redirect(url_for('main.explore'))
+    page = request.args.get('page', 1, type=int)
+    products, total = Product.search(g.search_form.q.data, page,
+                               current_app.config['PROD_PER_PAGE'])
+    next_url = None
+    prev_url = None
+    return render_template('search.html', title=('Search'), products=products,
+                           next_url=next_url, prev_url=prev_url)

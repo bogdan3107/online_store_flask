@@ -10,6 +10,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_wtf import CSRFProtect
 from logging.handlers import SMTPHandler
+from elasticsearch import Elasticsearch
 
 
 db = SQLAlchemy()
@@ -34,6 +35,8 @@ def create_app(config_class=Config):
     admin.init_app(app)
     login.init_app(app)
     mail.init_app(app)
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+        if app.config['ELASTICSEARCH_URL'] else None
     #csrf.init_app(app)
 
     

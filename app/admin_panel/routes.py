@@ -53,16 +53,14 @@ def create_product():
                 image_path = None
             )
             db.session.add(product)
-            db.session.commit()
-
+        
             image = form.image.data
             filename = secure_filename(image.filename)
             filename_only = os.path.basename(filename)
             filepath = os.path.join(current_app.config['PRODUCT_IMAGE_DIR'], filename_only)
-
             image.save(filepath)
-
             product.image_path = os.path.relpath(filepath, current_app.static_folder)
+            
             db.session.commit()
 
             flash('Product successfully created!', 'success')
