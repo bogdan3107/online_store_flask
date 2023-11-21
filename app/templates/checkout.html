@@ -20,6 +20,10 @@
             {{ customer_info.phone_number.label(class="form-label") }}
             {{ customer_info.phone_number(class="form-control") }}
           </div>
+          <div class="form-group">
+            {{ form.payment_type.label(class="form-label") }}
+            {{ form.payment_type(class="form-control") }}
+          </div>
         </div>
         <div class="col-md-6">
           <h4>Order Summary</h4>
@@ -32,7 +36,8 @@
           {% endfor %}
         </div>
       </div>
-      <button type="submit" class="btn btn-primary mt-3" onclick="clearCart()">Place Order</button>
+      <button type="submit" class="btn btn-primary mt-3">Place Order for {{ total_pay }} USD</button>
     </form>
   </div>
 {% endblock %}
+

@@ -8,8 +8,12 @@ function getCartCountFromLocalStorage() {
 
 document.addEventListener('DOMContentLoaded', function() {
     var savedCount = getCartCountFromLocalStorage();
+    var isCartPage = document.getElementById('totalPay') !== null;
     if (savedCount > 0) {
         document.getElementById(`productCount`).innerText = savedCount;
+    }
+    if (isCartPage) {
+        updateTotalPay();
     }
 });
 
@@ -19,6 +23,22 @@ function updateCartCount(count) {
 
 function clearCart() {
     localStorage.setItem('cartCount', 0);
+}
+
+function updateTotalPay() {
+    var totalPay = 0;
+
+    document.querySelectorAll('.card').forEach(function(cardElement) {
+        if (window.getComputedStyle(cardElement).getPropertyValue('display') !== 'none') {
+            var priceElement = cardElement.querySelector('.card-title + span');
+
+            if (priceElement) {
+                totalPay += parseFloat(priceElement.textContent.replace('Price: ', '').replace(' USD', ''));
+            }
+        }
+    });
+
+    document.getElementById('totalPay').textContent = 'Total to pay: ' + totalPay.toFixed(2) + ' USD';
 }
 
 function addToCart(productId) {
@@ -88,7 +108,9 @@ function removeFromCart(productID) {
         }
 
         if(updatedItemCount === undefined) {
-            cartProductID.style.display = 'none'
+            cartProductID.style.display = 'none';
+            updateTotalPay();
+            console.log('total pay after removing:', totalPay);
         } else {
             document.getElementById(`quantityDisplay_${productID}`).innerText = updatedItemCount;
         }
@@ -123,6 +145,8 @@ function increaseQuantity(element) {
         if (updatedItemCount > 1) {
             decreaseButton.disabled = false
         }
+
+        updateTotalPay();
         
     })
     .catch(error => {
@@ -160,6 +184,8 @@ function decreaseQuantity(element) {
             document.getElementById(`priceDisplay_${productID}`).innerText = itemInCartPrice;
             decreaseButton.disabled = (updatedItemCount === 1);
         }
+
+        updateTotalPay();
     })
     .catch(error => {
         console.error('Error updating quantity:', error.message);

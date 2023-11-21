@@ -1,5 +1,7 @@
 from . import bp
 from flask import render_template, current_app, flash, redirect, url_for
+from flask_login import current_user
+from flask_admin import expose
 from flask_admin.contrib.sqla import ModelView
 from app.admin_panel.forms import AddProductForm
 from app.models import Product, Category
@@ -18,11 +20,13 @@ class CategoryAdminView(ModelView):
     can_delete = False
 
 class UserAdminView(ModelView):
-    column_display_pk =True
+    column_display_pk = True
     column_exclude_list = ['password_hash']
+    column_list = ['username', 'email', 'orders']
 
-class OrderItemAdminView(ModelView):
+class OrderAdminView(ModelView):
     column_display_pk =True
+    column_editable_list = ['status', 'items']
 
 
 
@@ -40,7 +44,7 @@ def create_product():
         category_id = form.category.data
         category = Category.query.get(category_id)
 
-        if not  category:
+        if not category:
             return render_template('admin_panel/create_product.html', form=form)
         
         try:

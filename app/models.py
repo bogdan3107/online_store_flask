@@ -93,6 +93,9 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
     customer = db.relationship('User', back_populates='orders')
+    total_pay = db.Column(db.Float)
+    payment_type = db.Column(db.String(32))
+    payment_status = db.Column(db.Boolean, default=False)
 
     def send_order_confirmation(self):
         try:

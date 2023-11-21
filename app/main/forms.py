@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, validators
+from wtforms import StringField, SubmitField, TextAreaField, SelectField, validators
 from wtforms.validators import ValidationError, DataRequired, Length
 from app.models import User
 from flask import request
@@ -24,6 +24,12 @@ class EditProfileForm(FlaskForm):
                 raise ValidationError(('Please use a different username.'))
             
 class CheckoutForm(FlaskForm):
+    payment_type = SelectField(('Choose payment type'), validators=[DataRequired()],
+                               choices=[
+                                   ('cash_on_delivery', 'Cash on Delivery'),
+                                   ('credit_card', 'Credit Card'),
+                                   ('paypal', 'Paypal')
+                               ])
     submit = SubmitField('Place an order')
             
 class SearchForm(FlaskForm):

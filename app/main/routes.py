@@ -4,7 +4,6 @@ from app import db
 from app.main import bp
 from app.models import Product, User, Order, OrderItem
 from app.main.forms import EditProfileForm, SearchForm, CheckoutForm
-from app.emails import send_email
 
 @bp.before_app_request
 def before_request():
@@ -140,11 +139,16 @@ def checkout():
     customer_info.delivery_address.data = current_user.delivery_address
     customer_info.phone_number.data = current_user.phone_number
     cart_items = OrderItem.query.filter_by(customer=current_user, status='cart').all()
+    total_pay = sum(item.product.price * item.quantity for item in cart_items)
+    
     
     if form.validate_on_submit():
+        payment_type = form.payment_type.data
         order = Order(status = 'in_process',
                       items = cart_items,
                       customer = current_user,
+                      total_pay = total_pay,
+                      payment_type = payment_type
                       )
         for item in cart_items:
             db.session.add(item)
@@ -157,7 +161,7 @@ def checkout():
         order.send_order_confirmation()
         return redirect(url_for('main.load_customer', username=current_user.username))
     
-    return render_template('checkout.html', title=('Checkout'), form=form, customer_info=customer_info, cart_items=cart_items)
+    return render_template('checkout.html', title=('Checkout'), form=form, customer_info=customer_info, cart_items=cart_items, total_pay=total_pay)
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
 def contact_us():
@@ -166,7 +170,7 @@ def contact_us():
 @bp.route('/search')
 def search():
     if not g.search_form.validate():
-        return redirect(url_for('main.explore'))
+        return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
     products, total = Product.search(g.search_form.q.data, page,
                                current_app.config['PROD_PER_PAGE'])
