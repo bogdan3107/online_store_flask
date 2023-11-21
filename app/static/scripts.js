@@ -51,6 +51,10 @@ function addToCart(productId) {
     })
     .then(response => {
       if (!response.ok) {
+        if (response.status === 401) {
+            var responseHtmlContent = "<div class='alert alert-warning' role='alert'>Please log in!</div>";
+            document.getElementById('loginRequired').innerHTML = responseHtmlContent;
+        }
         throw new Error('Network response was not ok');
       }
       return response.json();

@@ -61,6 +61,7 @@ def shopping_cart():
 @bp.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     if current_user.is_anonymous:
+        flash('Please log in!')
         return jsonify({'message': 'You have to sign in to add a product to the cart!'}), 401
 
     data = request.get_json()
